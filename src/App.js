@@ -1,9 +1,26 @@
 import "./App.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function App() {
   const [breakTime, setBreakTime] = useState(5);
   const [sessionTime, setSessionTime] = useState(25);
+  const [countBreakTime, setCountBreakTime] = useState();
+
+  //reformat time into min:sec, arg needed to be mupliplied by 60 before passed
+  const timeFormatting = (time) => {
+    if (time > 0) {
+      let minute = Math.floor(time / 60);
+      let second = time % 60;
+      minute = minute < 10 ? "0" + minute : minute;
+      second = second < 10 ? "0" + second : second;
+      setCountBreakTime(`${minute}:${second}`);
+    } else {
+      setCountBreakTime("00:00");
+    }
+  };
+
+  //re-render count down timer when session time change
+  useEffect(() => timeFormatting(sessionTime * 60), [sessionTime]);
 
   return (
     <>
@@ -29,12 +46,56 @@ function App() {
             timeLengthId={"session-length"}
           />
         </div>
+        <div>
+          <SessionTime
+            breakTime={breakTime}
+            sessionTime={sessionTime}
+            countBreakTime={countBreakTime}
+            setCountBreakTime={setCountBreakTime}
+            timeFormatting={timeFormatting}
+          />
+        </div>
+
+        <div>
+          <Controller />
+        </div>
       </div>
     </>
   );
 }
 
-//controller of time
+//session time display
+function SessionTime(props) {
+  const [sessionTime, setSessionTime] = useState(props.sessionTime * 60);
+
+  //time interval each second, arg muptiplied by 60, and then minus 1 when each second re-render
+  useEffect(() => {
+    const timer = setInterval(() => {
+      props.timeFormatting(sessionTime);
+      setSessionTime((prev) => prev - 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  });
+
+  return (
+    <>
+      <h2 id="timer-label">Session</h2>
+      <p id="time-left">{props.countBreakTime}</p>
+    </>
+  );
+}
+
+//controller
+function Controller() {
+  return (
+    <>
+      <i className="fa-solid fa-play"></i>
+      <i className="fa-solid fa-arrow-rotate-left"></i>
+    </>
+  );
+}
+
+//set time length
 
 function TimeSetting(props) {
   const increment = () => {
@@ -55,9 +116,9 @@ function TimeSetting(props) {
 
   return (
     <>
-      <i id={props.incrementId} onClick={increment} class="fa-solid fa-arrow-up"></i>
+      <i id={props.incrementId} onClick={increment} className="fa-solid fa-arrow-up"></i>
       <span id={props.timeLengthId}>{props.timeLength}</span>
-      <i id={props.decrementId} onClick={decrement} class="fa-solid fa-arrow-down"></i>
+      <i id={props.decrementId} onClick={decrement} className="fa-solid fa-arrow-down"></i>
     </>
   );
 }
