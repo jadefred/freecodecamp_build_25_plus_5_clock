@@ -5,6 +5,7 @@ function App() {
   const [breakTime, setBreakTime] = useState(5);
   const [sessionTime, setSessionTime] = useState(25);
   const [countBreakTime, setCountBreakTime] = useState();
+  const [countDownStart, setCountDownStart] = useState(false);
 
   //reformat time into min:sec, arg needed to be mupliplied by 60 before passed
   const timeFormatting = (time) => {
@@ -21,6 +22,11 @@ function App() {
 
   //re-render count down timer when session time change
   useEffect(() => timeFormatting(sessionTime * 60), [sessionTime]);
+
+  //start count down control
+  function startCountDown() {
+    setCountDownStart((prev) => (!prev ? true : false));
+  }
 
   return (
     <>
@@ -48,16 +54,17 @@ function App() {
         </div>
         <div>
           <SessionTime
-            breakTime={breakTime}
+            //breakTime={breakTime}
             sessionTime={sessionTime}
             countBreakTime={countBreakTime}
             setCountBreakTime={setCountBreakTime}
             timeFormatting={timeFormatting}
+            countDownStart={countDownStart}
           />
         </div>
 
         <div>
-          <Controller />
+          <Controller startCountDown={startCountDown} countDownStart={countDownStart} />
         </div>
       </div>
     </>
@@ -68,13 +75,21 @@ function App() {
 function SessionTime(props) {
   const [sessionTime, setSessionTime] = useState(props.sessionTime * 60);
 
-  //time interval each second, arg muptiplied by 60, and then minus 1 when each second re-render
+  //when session time changed, update the session time here
   useEffect(() => {
-    const timer = setInterval(() => {
-      props.timeFormatting(sessionTime);
-      setSessionTime((prev) => prev - 1);
-    }, 1000);
-    return () => clearInterval(timer);
+    setSessionTime(props.sessionTime * 60);
+  }, [props.sessionTime]);
+
+  //time interval each second, arg muptiplied by 60, and then minus 1 when each second re-render
+  //start render when countDownStart is true
+  useEffect(() => {
+    if (props.countDownStart) {
+      const timer = setInterval(() => {
+        props.timeFormatting(sessionTime);
+        setSessionTime((prev) => prev - 1);
+      }, 1000);
+      return () => clearInterval(timer);
+    }
   });
 
   return (
@@ -86,10 +101,14 @@ function SessionTime(props) {
 }
 
 //controller
-function Controller() {
+function Controller(props) {
   return (
     <>
-      <i className="fa-solid fa-play"></i>
+      <i
+        onClick={props.startCountDown}
+        style={props.countDownStart ? { color: "green" } : { color: "red" }}
+        className="fa-solid fa-play"
+      ></i>
       <i className="fa-solid fa-arrow-rotate-left"></i>
     </>
   );
