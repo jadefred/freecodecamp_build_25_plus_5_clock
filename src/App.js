@@ -28,6 +28,12 @@ function App() {
     setCountDownStart((prev) => (!prev ? true : false));
   }
 
+  function startOver() {
+    setCountDownStart(false);
+    setSessionTime(25);
+    setBreakTime(5);
+  }
+
   return (
     <>
       <h1>25 + 5 Clock</h1>
@@ -54,7 +60,7 @@ function App() {
         </div>
         <div>
           <SessionTime
-            //breakTime={breakTime}
+            breakTime={breakTime}
             sessionTime={sessionTime}
             countBreakTime={countBreakTime}
             setCountBreakTime={setCountBreakTime}
@@ -64,7 +70,7 @@ function App() {
         </div>
 
         <div>
-          <Controller startCountDown={startCountDown} countDownStart={countDownStart} />
+          <Controller startCountDown={startCountDown} countDownStart={countDownStart} startOver={startOver} />
         </div>
       </div>
     </>
@@ -73,20 +79,35 @@ function App() {
 
 //session time display
 function SessionTime(props) {
+  const [timerTitle, setTimerTitle] = useState("Session");
   const [sessionTime, setSessionTime] = useState(props.sessionTime * 60);
+  const [breakTime, setBreakTime] = useState(props.breakTime * 60);
 
-  //when session time changed, update the session time here
+  //when main session time changed, update the session time here
   useEffect(() => {
     setSessionTime(props.sessionTime * 60);
   }, [props.sessionTime]);
 
-  //time interval each second, arg muptiplied by 60, and then minus 1 when each second re-render
-  //start render when countDownStart is true
+  //when main break time changed, update the break time here
   useEffect(() => {
-    if (props.countDownStart) {
+    setBreakTime(props.breakTime * 60);
+  }, [props.breakTime]);
+
+  //check if the sessionTime is 0 and the play button is true => if so, countdown session time
+  //then if sessionTime is already 0 but play button is so true, will start to count down breakTime
+  useEffect(() => {
+    if (props.countDownStart && sessionTime > 0) {
       const timer = setInterval(() => {
         props.timeFormatting(sessionTime);
         setSessionTime((prev) => prev - 1);
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+    if (props.countDownStart && sessionTime === 0) {
+      setTimerTitle("Break");
+      const timer = setInterval(() => {
+        props.timeFormatting(breakTime);
+        setBreakTime((prev) => prev - 1);
       }, 1000);
       return () => clearInterval(timer);
     }
@@ -94,7 +115,7 @@ function SessionTime(props) {
 
   return (
     <>
-      <h2 id="timer-label">Session</h2>
+      <h2 id="timer-label">{timerTitle}</h2>
       <p id="time-left">{props.countBreakTime}</p>
     </>
   );
@@ -109,7 +130,7 @@ function Controller(props) {
         style={props.countDownStart ? { color: "green" } : { color: "red" }}
         className="fa-solid fa-play"
       ></i>
-      <i className="fa-solid fa-arrow-rotate-left"></i>
+      <i onClick={props.startOver} className="fa-solid fa-arrow-rotate-left"></i>
     </>
   );
 }
