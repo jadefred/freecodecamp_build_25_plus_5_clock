@@ -1,164 +1,149 @@
 import "./App.css";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 
 function App() {
   const [breakTime, setBreakTime] = useState(5);
   const [sessionTime, setSessionTime] = useState(25);
-  const [countBreakTime, setCountBreakTime] = useState();
-  const [countDownStart, setCountDownStart] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(1500);
+  const [timerLabel, setTimerLabel] = useState("Session");
+  const [start, setStart] = useState(false);
 
-  //reformat time into min:sec, arg needed to be mupliplied by 60 before passed
-  const timeFormatting = (time) => {
-    if (time > 0) {
-      let minute = Math.floor(time / 60);
-      let second = time % 60;
-      minute = minute < 10 ? "0" + minute : minute;
-      second = second < 10 ? "0" + second : second;
-      setCountBreakTime(`${minute}:${second}`);
-    } else {
-      setCountBreakTime("00:00");
+  const timeOut = setTimeout(() => {
+    if (timeLeft && start) {
+      setTimeLeft(timeLeft - 1);
+    }
+  }, 1000);
+
+  const handleBreakIncrease = () => {
+    if (breakTime < 60) {
+      setBreakTime(breakTime + 1);
     }
   };
 
-  //re-render count down timer when session time change
-  useEffect(() => timeFormatting(sessionTime * 60), [sessionTime]);
+  const handleBreakDecrease = () => {
+    if (breakTime > 1) {
+      setBreakTime(breakTime - 1);
+    }
+  };
 
-  //start count down control
-  function startCountDown() {
-    setCountDownStart((prev) => (!prev ? true : false));
-  }
+  const handleSessionIncrease = () => {
+    if (sessionTime < 60) {
+      setSessionTime(sessionTime + 1);
+      setTimeLeft(timeLeft + 60);
+    }
+  };
 
-  function startOver() {
-    setCountDownStart(false);
-    setSessionTime(25);
+  const handleSessionDecrease = () => {
+    if (sessionTime > 1) {
+      setSessionTime(sessionTime - 1);
+      setTimeLeft(timeLeft - 60);
+    }
+  };
+
+  const handleReset = () => {
+    clearTimeout(timeOut);
+    setStart(false);
+    setTimeLeft(1500);
     setBreakTime(5);
+    setSessionTime(25);
+    setTimerLabel("Session");
+    const audio = document.getElementById("beep");
+    audio.pause();
+    audio.currentTime = 0;
+  };
+
+  const handleStart = () => {
+    clearTimeout(timeOut);
+    setStart(!start);
+  };
+
+  function resetTimer() {
+    const audio = document.getElementById("beep");
+    if (!timeLeft && timerLabel === "Session") {
+      setTimeLeft(breakTime * 60);
+      console.log(breakTime);
+      setTimerLabel("Break");
+      audio.play();
+    }
+    if (!timeLeft && timerLabel === "Break") {
+      setTimeLeft(sessionTime * 60);
+      setTimerLabel("Session");
+      audio.pause();
+      audio.currentTime = 0;
+    }
   }
+
+  const clock = () => {
+    if (start) {
+      return timeOut, resetTimer();
+    } else {
+      clearTimeout(timeOut);
+    }
+  };
+
+  useEffect(() => {
+    clock();
+  }, [start, timeLeft, timeOut]);
+
+  const timeFormatting = () => {
+    const minutes = Math.floor(timeLeft / 60);
+    const seconds = timeLeft - minutes * 60;
+    const formattedSeconds = seconds < 10 ? "0" + seconds : seconds;
+    const formattedMinutes = minutes < 10 ? "0" + minutes : minutes;
+    return `${formattedMinutes}:${formattedSeconds}`;
+  };
+
+  const handleTimerLabel = timerLabel === "Session" ? "Session" : "Break";
 
   return (
     <>
-      <h1>25 + 5 Clock</h1>
-      <div className="length-setting-box">
-        <div>
+      <div className="time-controller-box">
+        <div className="length-outter-box">
           <h2 id="break-label">Break Length</h2>
-          <TimeSetting
-            timeLength={breakTime}
-            updateTime={setBreakTime}
-            incrementId={"break-increment"}
-            decrementId={"break-decrement"}
-            timeLengthId={"break-length"}
-          />
-        </div>
-        <div>
-          <h2 id="session-label">Session Length</h2>
-          <TimeSetting
-            timeLength={sessionTime}
-            updateTime={setSessionTime}
-            incrementId={"session-increment"}
-            decrementId={"session-decrement"}
-            timeLengthId={"session-length"}
-          />
-        </div>
-        <div>
-          <SessionTime
-            breakTime={breakTime}
-            sessionTime={sessionTime}
-            countBreakTime={countBreakTime}
-            setCountBreakTime={setCountBreakTime}
-            timeFormatting={timeFormatting}
-            countDownStart={countDownStart}
-          />
+          <div className="length-wrapper">
+            <button disabled={start} id="break-increment" onClick={handleBreakIncrease}>
+              Increase
+            </button>
+            <p id="break-length">{breakTime}</p>
+            <button disabled={start} id="break-decrement" onClick={handleBreakDecrease}>
+              Decrease
+            </button>
+          </div>
         </div>
 
-        <div>
-          <Controller startCountDown={startCountDown} countDownStart={countDownStart} startOver={startOver} />
+        <div className="length-outter-box">
+          <h2 id="session-label">Session Length</h2>
+          <div className="length-wrapper">
+            <button disabled={start} id="session-increment" onClick={handleSessionIncrease}>
+              Increase
+            </button>
+            <p id="session-length">{sessionTime}</p>
+            <button disabled={start} id="session-decrement" onClick={handleSessionDecrease}>
+              Decrease
+            </button>
+          </div>
         </div>
       </div>
-    </>
-  );
-}
 
-//session time display
-function SessionTime(props) {
-  const [timerTitle, setTimerTitle] = useState("Session");
-  const [sessionTime, setSessionTime] = useState(props.sessionTime * 60);
-  const [breakTime, setBreakTime] = useState(props.breakTime * 60);
-
-  //when main session time changed, update the session time here
-  useEffect(() => {
-    setSessionTime(props.sessionTime * 60);
-  }, [props.sessionTime]);
-
-  //when main break time changed, update the break time here
-  useEffect(() => {
-    setBreakTime(props.breakTime * 60);
-  }, [props.breakTime]);
-
-  //check if the sessionTime is 0 and the play button is true => if so, countdown session time
-  //then if sessionTime is already 0 but play button is so true, will start to count down breakTime
-  useEffect(() => {
-    if (props.countDownStart && sessionTime > 0) {
-      const timer = setInterval(() => {
-        props.timeFormatting(sessionTime);
-        setSessionTime((prev) => prev - 1);
-      }, 1000);
-      return () => clearInterval(timer);
-    }
-    if (props.countDownStart && sessionTime === 0) {
-      setTimerTitle("Break");
-      const timer = setInterval(() => {
-        props.timeFormatting(breakTime);
-        setBreakTime((prev) => prev - 1);
-      }, 1000);
-      return () => clearInterval(timer);
-    }
-  });
-
-  return (
-    <>
-      <h2 id="timer-label">{timerTitle}</h2>
-      <p id="time-left">{props.countBreakTime}</p>
-    </>
-  );
-}
-
-//controller
-function Controller(props) {
-  return (
-    <>
-      <i
-        onClick={props.startCountDown}
-        style={props.countDownStart ? { color: "green" } : { color: "red" }}
-        className="fa-solid fa-play"
-      ></i>
-      <i onClick={props.startOver} className="fa-solid fa-arrow-rotate-left"></i>
-    </>
-  );
-}
-
-//set time length
-
-function TimeSetting(props) {
-  const increment = () => {
-    if (props.timeLength < 60) {
-      props.updateTime((prev) => prev + 1);
-    } else {
-      props.timeLength(props.timeLength);
-    }
-  };
-
-  const decrement = () => {
-    if (props.timeLength === 0) {
-      props.timeLength(props.timeLength);
-    } else {
-      props.updateTime((prev) => prev - 1);
-    }
-  };
-
-  return (
-    <>
-      <i id={props.incrementId} onClick={increment} className="fa-solid fa-arrow-up"></i>
-      <span id={props.timeLengthId}>{props.timeLength}</span>
-      <i id={props.decrementId} onClick={decrement} className="fa-solid fa-arrow-down"></i>
+      <div>
+        <h2 id="timer-label">{handleTimerLabel}</h2>
+        <div>
+          <p id="time-left">{timeFormatting()}</p>
+          <div>
+            <button id="start_stop" onClick={handleStart}>
+              Start
+            </button>
+            <button id="reset" onClick={handleReset}>
+              Reset
+            </button>
+          </div>
+        </div>
+        <audio
+          id="beep"
+          preload="auto"
+          src="https://raw.githubusercontent.com/freeCodeCamp/cdn/master/build/testable-projects-fcc/audio/BeepSound.wav"
+        />
+      </div>
     </>
   );
 }
