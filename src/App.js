@@ -7,6 +7,7 @@ function App() {
   const [timeLeft, setTimeLeft] = useState(1500);
   const [timerLabel, setTimerLabel] = useState("Session");
   const [start, setStart] = useState(false);
+  const [playbtn, setPlayBtn] = useState(false);
 
   //re-render time everysecond when clock is started and have timeleft
   const timeOut = setTimeout(() => {
@@ -41,22 +42,10 @@ function App() {
     }
   };
 
-  //reset all setting
-  const handleReset = () => {
-    clearTimeout(timeOut);
-    setStart(false);
-    setTimeLeft(1500);
-    setBreakTime(5);
-    setSessionTime(25);
-    setTimerLabel("Session");
-    const audio = document.getElementById("beep");
-    audio.pause();
-    audio.currentTime = 0;
-  };
-
   const handleStart = () => {
     clearTimeout(timeOut);
     setStart(!start);
+    setPlayBtn(!playbtn);
   };
 
   //when break time is finished, start to count down session again and on and on
@@ -88,6 +77,19 @@ function App() {
     clock();
   }, [start, timeLeft, timeOut]);
 
+  //reset all setting
+  const handleReset = () => {
+    clearTimeout(timeOut);
+    setStart(false);
+    setTimeLeft(1500);
+    setBreakTime(5);
+    setSessionTime(25);
+    setTimerLabel("Session");
+    const audio = document.getElementById("beep");
+    audio.pause();
+    audio.currentTime = 0;
+  };
+
   const timeFormatting = () => {
     const minutes = Math.floor(timeLeft / 60);
     const seconds = timeLeft - minutes * 60;
@@ -97,10 +99,12 @@ function App() {
   };
 
   const handleTimerLabel = timerLabel === "Session" ? "Session" : "Break";
+  const handlePlayBtn = playbtn === false ? "Start" : "Stop";
 
   return (
     <>
-      <div>
+      <h1>25 + 1 Clock</h1>
+      <div className="box">
         <div className="time-controller-box">
           <div className="length-outter-box">
             <h2 id="break-label">Break Length</h2>
@@ -134,10 +138,14 @@ function App() {
           <div>
             <p id="time-left">{timeFormatting()}</p>
             <div className="start-button-box">
-              <button id="start_stop" onClick={handleStart}>
-                Start
+              <button
+                id="start_stop"
+                onClick={handleStart}
+                style={handlePlayBtn === "Stop" ? { backgroundColor: "#354f52" } : {}}
+              >
+                {handlePlayBtn}
               </button>
-              <button id="reset" onClick={handleReset}>
+              <button disabled={start} id="reset" onClick={handleReset}>
                 Reset
               </button>
             </div>

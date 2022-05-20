@@ -8,6 +8,17 @@ body {
   background-color: #cad2c5;
 }
 
+h1 {
+  text-align: center;
+  padding: 1rem 0;
+  font-size: 60px;
+  color: #2f3e46;
+}
+
+.box {
+  border-top: 10px double #84a98c;
+}
+
 /* time length controller boxs' elements */
 .time-controller-box {
   width: 60%;
@@ -49,16 +60,17 @@ body {
 /* count down box's elements */
 .countDown-box {
   margin: 5rem auto;
-  border-radius: 20px;
+  border-radius: 50px;
   padding: 1rem 0;
-  width: 70%;
+  width: 40%;
+  border: double 10px #2f3e46;
   background-color: #52796f;
 }
 
 .countDown-box h2 {
   text-align: center;
   color: white;
-  font-size: 30px;
+  font-size: 40px;
 }
 
 .countDown-box p {
@@ -83,4 +95,8 @@ body {
   background-color: #84a98c;
   color: white;
   font-size: 25px;
+}
+
+button:disabled {
+  background-color: #a9c2ae;
 }
