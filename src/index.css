@@ -1,0 +1,86 @@
+* {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+body {
+  background-color: #cad2c5;
+}
+
+/* time length controller boxs' elements */
+.time-controller-box {
+  width: 60%;
+  padding: 2rem;
+  margin: auto;
+  display: flex;
+  column-gap: 2rem;
+  justify-content: space-between;
+}
+
+.time-controller-box h2 {
+  text-align: center;
+  font-size: 30px;
+  margin-bottom: 1rem;
+  color: #2f3e46;
+}
+
+.length-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.length-wrapper button {
+  padding: 0.5rem 0;
+  border: none;
+  border-radius: 5px;
+  background-color: #84a98c;
+  color: white;
+  font-size: 18px;
+}
+
+.length-wrapper p {
+  text-align: center;
+  font-size: 25px;
+  color: #2f3e46;
+}
+
+/* count down box's elements */
+.countDown-box {
+  margin: 5rem auto;
+  border-radius: 20px;
+  padding: 1rem 0;
+  width: 70%;
+  background-color: #52796f;
+}
+
+.countDown-box h2 {
+  text-align: center;
+  color: white;
+  font-size: 30px;
+}
+
+.countDown-box p {
+  text-align: center;
+  color: white;
+  font-size: 80px;
+  padding: 2rem 0;
+}
+
+.start-button-box {
+  display: flex;
+  column-gap: 2rem;
+  width: 40%;
+  margin: auto;
+  padding: 1rem;
+}
+
+.start-button-box button {
+  border: none;
+  padding: 1rem 0;
+  border-radius: 5px;
+  background-color: #84a98c;
+  color: white;
+  font-size: 25px;
+}

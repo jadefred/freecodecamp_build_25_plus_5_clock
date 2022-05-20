@@ -1,5 +1,5 @@
-import "./App.css";
 import React, { useState, useEffect } from "react";
+import "./index.css";
 
 function App() {
   const [breakTime, setBreakTime] = useState(5);
@@ -8,6 +8,7 @@ function App() {
   const [timerLabel, setTimerLabel] = useState("Session");
   const [start, setStart] = useState(false);
 
+  //re-render time everysecond when clock is started and have timeleft
   const timeOut = setTimeout(() => {
     if (timeLeft && start) {
       setTimeLeft(timeLeft - 1);
@@ -40,6 +41,7 @@ function App() {
     }
   };
 
+  //reset all setting
   const handleReset = () => {
     clearTimeout(timeOut);
     setStart(false);
@@ -57,6 +59,7 @@ function App() {
     setStart(!start);
   };
 
+  //when break time is finished, start to count down session again and on and on
   function resetTimer() {
     const audio = document.getElementById("beep");
     if (!timeLeft && timerLabel === "Session") {
@@ -97,52 +100,54 @@ function App() {
 
   return (
     <>
-      <div className="time-controller-box">
-        <div className="length-outter-box">
-          <h2 id="break-label">Break Length</h2>
-          <div className="length-wrapper">
-            <button disabled={start} id="break-increment" onClick={handleBreakIncrease}>
-              Increase
-            </button>
-            <p id="break-length">{breakTime}</p>
-            <button disabled={start} id="break-decrement" onClick={handleBreakDecrease}>
-              Decrease
-            </button>
-          </div>
-        </div>
-
-        <div className="length-outter-box">
-          <h2 id="session-label">Session Length</h2>
-          <div className="length-wrapper">
-            <button disabled={start} id="session-increment" onClick={handleSessionIncrease}>
-              Increase
-            </button>
-            <p id="session-length">{sessionTime}</p>
-            <button disabled={start} id="session-decrement" onClick={handleSessionDecrease}>
-              Decrease
-            </button>
-          </div>
-        </div>
-      </div>
-
       <div>
-        <h2 id="timer-label">{handleTimerLabel}</h2>
-        <div>
-          <p id="time-left">{timeFormatting()}</p>
-          <div>
-            <button id="start_stop" onClick={handleStart}>
-              Start
-            </button>
-            <button id="reset" onClick={handleReset}>
-              Reset
-            </button>
+        <div className="time-controller-box">
+          <div className="length-outter-box">
+            <h2 id="break-label">Break Length</h2>
+            <div className="length-wrapper">
+              <button disabled={start} id="break-increment" onClick={handleBreakIncrease}>
+                Increase
+              </button>
+              <p id="break-length">{breakTime}</p>
+              <button disabled={start} id="break-decrement" onClick={handleBreakDecrease}>
+                Decrease
+              </button>
+            </div>
+          </div>
+
+          <div className="length-outter-box">
+            <h2 id="session-label">Session Length</h2>
+            <div className="length-wrapper">
+              <button disabled={start} id="session-increment" onClick={handleSessionIncrease}>
+                Increase
+              </button>
+              <p id="session-length">{sessionTime}</p>
+              <button disabled={start} id="session-decrement" onClick={handleSessionDecrease}>
+                Decrease
+              </button>
+            </div>
           </div>
         </div>
-        <audio
-          id="beep"
-          preload="auto"
-          src="https://raw.githubusercontent.com/freeCodeCamp/cdn/master/build/testable-projects-fcc/audio/BeepSound.wav"
-        />
+
+        <div className="countDown-box">
+          <h2 id="timer-label">{handleTimerLabel}</h2>
+          <div>
+            <p id="time-left">{timeFormatting()}</p>
+            <div className="start-button-box">
+              <button id="start_stop" onClick={handleStart}>
+                Start
+              </button>
+              <button id="reset" onClick={handleReset}>
+                Reset
+              </button>
+            </div>
+          </div>
+          <audio
+            id="beep"
+            preload="auto"
+            src="https://raw.githubusercontent.com/freeCodeCamp/cdn/master/build/testable-projects-fcc/audio/BeepSound.wav"
+          />
+        </div>
       </div>
     </>
   );
